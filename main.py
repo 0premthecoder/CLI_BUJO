@@ -45,7 +45,7 @@ def save_data(tasks, notes, events):
 def prinCli(todos, urNotes, urEvents):
     todo = ""
     for i in todos:
-        todo += todos[i] + i + "\n"
+        todo += todos[i] + " " + i + "\n"
     
     if not todo:
         todo = "  (No tasks yet. Add one with '.')\n"
@@ -93,7 +93,8 @@ def changeTodoStatus(tasks, status):
         print(selected)
         task_name = selected.split(' ', 1)[1]
         tasks[task_name] = status
-        print(f"\n✅ You are doing {task_name}")
+        save_data(tasks, notes, events)
+        print(f"\n✅ Changed Status {task_name}")
     else:
         print("❌ No selection made.")
 
@@ -101,7 +102,7 @@ print("📝 Welcome to BuJo CLI – Your terminal-based bullet journal.\nSimple.
 
 
 while True:
-    options = input("")
+    options = input("").strip()
 
     match options.lower():
         case 'h':
@@ -115,7 +116,7 @@ while True:
                 print("type . for writting ur todo")
                 continue
             else:
-                tasks[task] = "● "
+                tasks[task] = "●"
                 save_data(tasks, notes, events)
                 print("Finish it as soon as possible")  
 
@@ -129,9 +130,9 @@ while True:
             print("Noted Down ✅")
     
         case '/':
-            changeTodoStatus(tasks,"/ ")
+            changeTodoStatus(tasks,"/")
         case 'x':
-            changeTodoStatus(tasks, "⛌ ")
+            changeTodoStatus(tasks, "⛌")
 
         case 'o':
             event = input("Type about Event\n")
