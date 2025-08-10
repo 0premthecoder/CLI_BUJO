@@ -1,6 +1,9 @@
 import questionary
+import json
+import datetime
 
-print("📝 Welcome to BuJo CLI – Your terminal-based bullet journal.\nSimple. Fast. Focused.\nUse it to plan your day, track tasks, and reflect — without distractions.\nType `v` to get started.")
+print()
+DATA_FILE = f'{datetime.date.today()}-bujo.json'
 
 help ="""
 📚 BuJo CLI — Command Reference
@@ -19,9 +22,25 @@ vn  Viewing your Notes Only
 q   quitting
 """
 
-tasks = {}
-notes = []
-events = []
+def loadData():
+    try:
+        with open(DATA_FILE, 'r') as f:
+            data = json.load(f)
+            return data.get("tasks", {}) , data.get("notes", []) , data.get("events", [])
+    except FileNotFoundError:
+        return {}, [], []
+
+
+tasks ,notes , events = loadData()
+
+def save_data(tasks, notes, events):
+    data = {
+        "tasks": tasks,
+        "notes": notes,
+        "events": events
+    }
+    with open(DATA_FILE, "w") as f:
+        json.dump(data, f)
 
 def prinCli(todos, urNotes, urEvents):
     todo = ""
@@ -57,7 +76,6 @@ def prinCli(todos, urNotes, urEvents):
 ─────────────────────────────────
 """)
 
-
 def changeTodoStatus(tasks, status):
     if not tasks:
         print("Nothing here..")
@@ -79,31 +97,51 @@ def changeTodoStatus(tasks, status):
     else:
         print("❌ No selection made.")
 
+print("📝 Welcome to BuJo CLI – Your terminal-based bullet journal.\nSimple. Fast. Focused.\nUse it to plan your day, track tasks, and reflect — without distractions.\nType `v` to get started.")
+
 
 while True:
     options = input("")
+
     match options.lower():
         case 'h':
             print(help)
+
         case '.':
             task = input("Whats the Work\n")
             if task in tasks:
                 print("Already in")
+            elif not task:
+                print("type . for writting ur todo")
+                continue
             else:
                 tasks[task] = "● "
-                print("Finish it as soon as possible")   
+                save_data(tasks, notes, events)
+                print("Finish it as soon as possible")  
+
         case '-':
             note = input("Type your note\n")
+            if not note:
+                print("type - for writting a note")
+                continue
             notes.append(note)
+            save_data(tasks, notes, events)
             print("Noted Down ✅")
+    
         case '/':
-            changeTodoStatus(tasks,"/")
+            changeTodoStatus(tasks,"/ ")
         case 'x':
-            changeTodoStatus(tasks, "⛌")
+            changeTodoStatus(tasks, "⛌ ")
+
         case 'o':
             event = input("Type about Event\n")
+            if not event:
+                print("type o for Adding ur Events")
+                continue
             events.append(event)
+            save_data(tasks, notes, events)
             print("Added on Events ✅")
+
         case 'v':
             prinCli(tasks,notes,events)
         case 'vt':
